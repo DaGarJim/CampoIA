@@ -10,12 +10,12 @@ import {
   Sparkles,
   Trophy,
   User,
-  Users,
 } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { CoachShell } from '@/features/coach/CoachShell';
 import { DashboardPage } from '@/features/coach/pages/DashboardPage';
+import { PlayersPage } from '@/features/coach/pages/PlayersPage';
 import { PlayerShell } from '@/features/player/PlayerShell';
 import { PlayerHomePage } from '@/features/player/pages/PlayerHomePage';
 import { Placeholder } from '@/components/Placeholder';
@@ -66,10 +66,7 @@ export function AppRoutes() {
     <Routes>
       <Route element={<CoachShell />}>
         <Route index element={<DashboardPage />} />
-        <Route
-          path="players"
-          element={<Placeholder icon={Users} title="Jugadores" description="Gestiona tu plantilla y las fichas de cada jugador." />}
-        />
+        <Route path="players" element={<PlayersPage />} />
         <Route
           path="matches"
           element={<Placeholder icon={Trophy} title="Partidos" description="Registra y analiza los partidos de tus jugadores." />}

@@ -3,21 +3,46 @@
 export type Role = 'coach' | 'player';
 
 export type PlayerStatus = 'available' | 'risk' | 'injured' | 'unavailable';
+export type Trend = 'up' | 'down' | 'eq';
 
 export interface Player {
   id: string;
   coach_id: string;
   auth_user_id: string | null;
   name: string;
+  pos: string | null;
+  pos_group: string | null;
+  age: number | null;
+  foot: string | null;
   club: string | null;
-  position: string | null;
-  status: PlayerStatus | null;
+  category: string | null;
+  status: PlayerStatus;
+  trend: Trend | null;
+  score: number | null;
+  adherence: number | null;
+  mins: number | null;
+  callups: number | null;
+  played: number | null;
+  scored: number | null;
+  assisted: number | null;
+  sleep: number | null;
+  tag: string | null;
+  height_cm: number | null;
+  weight_kg: number | null;
   photo_url: string | null;
-  birth_date: string | null;
   created_at: string;
 }
 
-export type MatchResult = 'win' | 'draw' | 'loss' | null;
+/** Campos requeridos para crear un jugador (el resto recibe valores por defecto). */
+export interface CreatePlayerInput {
+  name: string;
+  pos: string;
+  age: number;
+  foot: string;
+  club?: string;
+  category?: string;
+  status: PlayerStatus;
+}
 
 export interface Match {
   id: string;
@@ -26,8 +51,8 @@ export interface Match {
   date: string;
   rival: string | null;
   result: string | null;
-  minutes: number | null;
-  called: boolean | null;
+  mins: number | null;
+  called: string | null;
   role: string | null;
   notes: string | null;
   created_at: string;
