@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { ClipboardCheck, ListChecks, Trophy, User } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { CoachShell } from '@/features/coach/CoachShell';
@@ -15,7 +14,10 @@ import { ReportsPage } from '@/features/coach/pages/ReportsPage';
 import { SettingsPage } from '@/features/coach/pages/SettingsPage';
 import { PlayerShell } from '@/features/player/PlayerShell';
 import { PlayerHomePage } from '@/features/player/pages/PlayerHomePage';
-import { Placeholder } from '@/components/Placeholder';
+import { PlayerCheckinPage } from '@/features/player/pages/PlayerCheckinPage';
+import { PlayerTasksPage } from '@/features/player/pages/PlayerTasksPage';
+import { PlayerMatchesPage } from '@/features/player/pages/PlayerMatchesPage';
+import { PlayerProfilePage } from '@/features/player/pages/PlayerProfilePage';
 import { Spinner } from '@/components/ui/spinner';
 
 function FullScreenLoader() {
@@ -37,22 +39,10 @@ export function AppRoutes() {
       <Routes>
         <Route element={<PlayerShell />}>
           <Route path="/player" element={<PlayerHomePage />} />
-          <Route
-            path="/player/checkin"
-            element={<Placeholder icon={ClipboardCheck} title="Check-in diario" description="Registra ánimo, energía y descanso cada día." />}
-          />
-          <Route
-            path="/player/tasks"
-            element={<Placeholder icon={ListChecks} title="Misiones" description="Tus tareas y retos asignados por el entrenador." />}
-          />
-          <Route
-            path="/player/matches"
-            element={<Placeholder icon={Trophy} title="Tus partidos" description="Histórico de partidos y minutos." />}
-          />
-          <Route
-            path="/player/profile"
-            element={<Placeholder icon={User} title="Tu perfil" description="Tu progreso, nivel y datos personales." />}
-          />
+          <Route path="/player/checkin" element={<PlayerCheckinPage />} />
+          <Route path="/player/tasks" element={<PlayerTasksPage />} />
+          <Route path="/player/matches" element={<PlayerMatchesPage />} />
+          <Route path="/player/profile" element={<PlayerProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/player" replace />} />
       </Routes>
