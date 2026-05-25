@@ -1,15 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import {
-  BarChart3,
-  ClipboardCheck,
-  FileText,
-  ListChecks,
-  MessageSquare,
-  Settings,
-  Sparkles,
-  Trophy,
-  User,
-} from 'lucide-react';
+import { ClipboardCheck, ListChecks, Trophy, User } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { CoachShell } from '@/features/coach/CoachShell';
@@ -18,6 +8,11 @@ import { PlayersPage } from '@/features/coach/pages/PlayersPage';
 import { MatchesPage } from '@/features/coach/pages/MatchesPage';
 import { TrainingPage } from '@/features/coach/pages/TrainingPage';
 import { TasksPage } from '@/features/coach/pages/TasksPage';
+import { MetricsPage } from '@/features/coach/pages/MetricsPage';
+import { MessagesPage } from '@/features/coach/pages/MessagesPage';
+import { AICoachPage } from '@/features/coach/pages/AICoachPage';
+import { ReportsPage } from '@/features/coach/pages/ReportsPage';
+import { SettingsPage } from '@/features/coach/pages/SettingsPage';
 import { PlayerShell } from '@/features/player/PlayerShell';
 import { PlayerHomePage } from '@/features/player/pages/PlayerHomePage';
 import { Placeholder } from '@/components/Placeholder';
@@ -71,27 +66,12 @@ export function AppRoutes() {
         <Route path="players" element={<PlayersPage />} />
         <Route path="matches" element={<MatchesPage />} />
         <Route path="training" element={<TrainingPage />} />
-        <Route
-          path="metrics"
-          element={<Placeholder icon={BarChart3} title="Métricas" description="Evolución de rendimiento y carga." />}
-        />
+        <Route path="metrics" element={<MetricsPage />} />
         <Route path="tasks" element={<TasksPage />} />
-        <Route
-          path="messages"
-          element={<Placeholder icon={MessageSquare} title="Mensajes" description="Conversaciones con tus jugadores." />}
-        />
-        <Route
-          path="ai"
-          element={<Placeholder icon={Sparkles} title="IA Coach" description="Asistente con el contexto real de tus jugadores." />}
-        />
-        <Route
-          path="reports"
-          element={<Placeholder icon={FileText} title="Informes" description="Genera informes PDF por jugador." />}
-        />
-        <Route
-          path="settings"
-          element={<Placeholder icon={Settings} title="Ajustes" description="Tu cuenta, marca y preferencias." />}
-        />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="ai" element={<AICoachPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
