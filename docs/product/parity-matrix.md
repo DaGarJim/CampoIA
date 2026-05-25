@@ -14,22 +14,22 @@ Decision values:
 | --- | --- | --- | --- | --- |
 | Coach dashboard | `legacy/index.html` dashboard | Partial | MVP | KPIs exist, but spotlight/activity depth reduced. |
 | Players list | `legacy/index.html` players | Partial | MVP | Missing filters, import ficha IA, passport entry. |
-| Player Passport | `legacy/index.html` `view-passport` | Missing | MVP decision required | High-value coach workflow. |
+| Player Passport | `legacy/index.html` `view-passport` | Missing | MVP | High-value coach workflow; MVP decision still pending (see First Release Recommendation). |
 | Matches | `legacy/index.html` matches | Implemented | MVP | Basic CRUD/list present. |
 | Training | `legacy/index.html` training | Implemented | MVP | Basic session flow present. |
-| Habits | `legacy/index.html` habits | Missing | Post-MVP decision required | Not present in React nav. |
+| Habits | `legacy/index.html` habits | Missing | Post-MVP | Not present in React nav; deferral to be confirmed. |
 | Metrics | `legacy/index.html` metrics | Partial | MVP | Aggregates exist; AI attributes absent. |
 | Messages coach | `legacy/index.html` messages | Partial | MVP | Coach can send; player chat absent. |
-| Messages player | `legacy/index.html` `p-chat` | Missing | MVP decision required | Current player portal has no chat route. |
+| Messages player | `legacy/index.html` `p-chat` | Missing | MVP | Current player portal has no chat route; MVP decision still pending (see First Release Recommendation). |
 | IA Coach | `legacy/index.html` IA | Partial | MVP | Chat exists; no automatic player context/quick prompts. |
 | Reports | `legacy/index.html` reports | Partial | MVP | Current PDF is simple ficha, not AI report workflow. |
-| Video upload | `legacy/index.html` video | Missing | Post-MVP decision required | Requires Storage/security/product decision. |
-| Video analysis | `legacy/index.html` vanalysis | Missing | Post-MVP decision required | Requires Storage and player delivery. |
+| Video upload | `legacy/index.html` video | Missing | Post-MVP | Requires Storage/security/product decision before un-deferring. |
+| Video analysis | `legacy/index.html` vanalysis | Missing | Post-MVP | Requires Storage and player delivery before un-deferring. |
 | Player check-in | `legacy/index.html` p-checkin | Partial | MVP | Pain level/zone lost in React. |
 | Player tasks | `legacy/index.html` p-tasks | Implemented | MVP | Needs RPC hardening. |
 | Player matches | `legacy/index.html` p-matches | Implemented | MVP | Basic list present. |
-| Player profile photo | `legacy/index.html` p-profile upload | Missing | Post-MVP decision required | Requires Storage bucket and policies. |
-| Settings branding/export | `legacy/index.html` settings | Missing | Post-MVP decision required | Not needed for first release unless reports are MVP. |
+| Player profile photo | `legacy/index.html` p-profile upload | Missing | Post-MVP | Requires Storage bucket and policies before un-deferring. |
+| Settings branding/export | `legacy/index.html` settings | Missing | Post-MVP | Not needed for first release unless reports are MVP. |
 
 ## First Release Recommendation
 
