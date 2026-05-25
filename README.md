@@ -2,6 +2,12 @@
 
 Plataforma para **entrenadores y jugadores** de fútbol: dashboard del entrenador (centro de mando) y portal gamificado del jugador. Una sola base de código → **web + iOS + Android**.
 
+## Estado de migración
+
+La migración React + Capacitor cubre la base web/iOS/Android y los flujos principales,
+pero no pretende tener paridad completa con `legacy/index.html` todavía. Consulta
+`docs/product/parity-matrix.md` antes de planificar nuevas features.
+
 ## Stack
 
 - **React 18 + TypeScript + Vite** · **Tailwind CSS** (tokens "Midnight Electric", tema claro/oscuro)
