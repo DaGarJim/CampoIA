@@ -1,8 +1,20 @@
 # Dependencies
 node_modules/
 
-# Capacitor web build output (generated from index.html by scripts/build-web.mjs)
+# Build output
+dist/
 www/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Test / coverage
+coverage/
+playwright-report/
+test-results/
+.vitest/
 
 # Capacitor / native build artifacts
 .gradle/
