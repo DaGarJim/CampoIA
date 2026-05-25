@@ -3,15 +3,15 @@
   "configurations": [
     {
       "name": "campo-web",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5173", "--strictPort", "--host"],
       "port": 5173
     },
     {
-      "name": "design-lab",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "design-lab", "--port", "5174"],
-      "port": 5174
+      "name": "campo-dist",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/preview-static.mjs", "dist", "5180"],
+      "port": 5180
     }
   ]
 }

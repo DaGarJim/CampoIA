@@ -1,16 +1,21 @@
+import { useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/app/queryClient';
+import { AuthProvider } from '@/features/auth/AuthProvider';
+import { AppRoutes } from '@/routes/AppRoutes';
+import { initNative } from '@/lib/native';
+
 export default function App() {
+  useEffect(() => initNative(), []);
+
   return (
-    <div className="grid min-h-dvh place-items-center bg-background px-6">
-      <div className="text-center">
-        <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-primary font-display text-2xl font-extrabold text-primary-foreground shadow-glow">
-          C
-        </div>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight text-foreground">CAMPO</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Plataforma para entrenadores y jugadores</p>
-        <p className="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground/70">
-          React + TypeScript + Vite · Capacitor
-        </p>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
