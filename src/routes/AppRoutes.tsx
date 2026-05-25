@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   BarChart3,
   ClipboardCheck,
-  Dumbbell,
   FileText,
   ListChecks,
   MessageSquare,
@@ -17,6 +16,8 @@ import { CoachShell } from '@/features/coach/CoachShell';
 import { DashboardPage } from '@/features/coach/pages/DashboardPage';
 import { PlayersPage } from '@/features/coach/pages/PlayersPage';
 import { MatchesPage } from '@/features/coach/pages/MatchesPage';
+import { TrainingPage } from '@/features/coach/pages/TrainingPage';
+import { TasksPage } from '@/features/coach/pages/TasksPage';
 import { PlayerShell } from '@/features/player/PlayerShell';
 import { PlayerHomePage } from '@/features/player/pages/PlayerHomePage';
 import { Placeholder } from '@/components/Placeholder';
@@ -69,18 +70,12 @@ export function AppRoutes() {
         <Route index element={<DashboardPage />} />
         <Route path="players" element={<PlayersPage />} />
         <Route path="matches" element={<MatchesPage />} />
-        <Route
-          path="training"
-          element={<Placeholder icon={Dumbbell} title="Entrenamientos" description="Sesiones, carga y RPE." />}
-        />
+        <Route path="training" element={<TrainingPage />} />
         <Route
           path="metrics"
           element={<Placeholder icon={BarChart3} title="Métricas" description="Evolución de rendimiento y carga." />}
         />
-        <Route
-          path="tasks"
-          element={<Placeholder icon={ListChecks} title="Tareas" description="Asigna y sigue las tareas de cada jugador." />}
-        />
+        <Route path="tasks" element={<TasksPage />} />
         <Route
           path="messages"
           element={<Placeholder icon={MessageSquare} title="Mensajes" description="Conversaciones con tus jugadores." />}
