@@ -3,7 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { detectRole, displayName, getCurrentSession, onAuthChange } from '@/services/auth.service';
 import type { Role } from '@/types/domain';
 
-type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unprovisioned';
 
 interface AuthState {
   status: AuthStatus;
@@ -32,10 +32,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function resolve(session: Session | null) {
       if (!active) return;
       if (session?.user) {
-        const role = await detectRole(session.user);
+        // detectRole provisiona vía RPC y devuelve el rol REAL de la BD.
+        // null (o un fallo de aprovisionamiento) => sesión válida pero sin rol:
+        // estado 'unprovisioned', no se cierra sesión ni se asume un rol.
+        let role: Role | null = null;
+        try {
+          role = await detectRole(session.user);
+        } catch {
+          role = null;
+        }
         if (!active) return;
         setState({
-          status: 'authenticated',
+          status: role ? 'authenticated' : 'unprovisioned',
           session,
           user: session.user,
           role,

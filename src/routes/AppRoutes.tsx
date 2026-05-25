@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { LoginPage } from '@/features/auth/LoginPage';
+import { ProvisioningPage } from '@/features/auth/ProvisioningPage';
 import { CoachShell } from '@/features/coach/CoachShell';
 import { DashboardPage } from '@/features/coach/pages/DashboardPage';
 import { PlayersPage } from '@/features/coach/pages/PlayersPage';
@@ -33,6 +34,7 @@ export function AppRoutes() {
 
   if (status === 'loading') return <FullScreenLoader />;
   if (status === 'unauthenticated') return <LoginPage />;
+  if (status === 'unprovisioned') return <ProvisioningPage />;
 
   if (role === 'player') {
     return (

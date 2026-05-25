@@ -6,7 +6,7 @@ import { Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signIn, signUp } from '@/services/auth.service';
+import { normalizeInviteCode, signIn, signUp } from '@/services/auth.service';
 import type { Role } from '@/types/domain';
 import { cn } from '@/lib/utils';
 
@@ -42,6 +42,10 @@ export function LoginPage() {
       } else {
         if (!values.name || values.name.trim().length < 2) {
           setServerError('Indica tu nombre.');
+          return;
+        }
+        if (role === 'player' && !normalizeInviteCode(values.inviteCode)) {
+          setServerError('Introduce el código de invitación de tu entrenador.');
           return;
         }
         const { needsConfirmation } = await signUp({
