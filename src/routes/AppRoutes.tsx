@@ -16,6 +16,7 @@ import { LoginPage } from '@/features/auth/LoginPage';
 import { CoachShell } from '@/features/coach/CoachShell';
 import { DashboardPage } from '@/features/coach/pages/DashboardPage';
 import { PlayersPage } from '@/features/coach/pages/PlayersPage';
+import { MatchesPage } from '@/features/coach/pages/MatchesPage';
 import { PlayerShell } from '@/features/player/PlayerShell';
 import { PlayerHomePage } from '@/features/player/pages/PlayerHomePage';
 import { Placeholder } from '@/components/Placeholder';
@@ -67,10 +68,7 @@ export function AppRoutes() {
       <Route element={<CoachShell />}>
         <Route index element={<DashboardPage />} />
         <Route path="players" element={<PlayersPage />} />
-        <Route
-          path="matches"
-          element={<Placeholder icon={Trophy} title="Partidos" description="Registra y analiza los partidos de tus jugadores." />}
-        />
+        <Route path="matches" element={<MatchesPage />} />
         <Route
           path="training"
           element={<Placeholder icon={Dumbbell} title="Entrenamientos" description="Sesiones, carga y RPE." />}
