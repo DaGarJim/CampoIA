@@ -47,8 +47,13 @@ npm run quality:web -> PASS
 npm run sync -> PASS
 cd android && ./gradlew assembleDebug lintDebug -> PASS
 xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath ios/App/build CODE_SIGNING_ALLOWED=NO build -> PASS
-supabase db reset -> PASS
+supabase db reset -> NOT RUN (Supabase CLI/config unavailable; required before production on a disposable Supabase project)
 ```
+
+> **Pre-production gate (no se da por satisfecho automáticamente):** `supabase db reset`
+> debe ejecutarse manualmente contra un proyecto Supabase desechable antes de
+> producción. Si la CLI/config no está disponible en tu entorno, marca esta línea
+> como `NOT RUN` y no la consideres superada hasta haberla ejecutado de verdad.
 
 Manual smoke:
 
