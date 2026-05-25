@@ -176,6 +176,26 @@ language sql stable security definer set search_path = public as $$
   select id from public.players where auth_user_id = auth.uid();
 $$;
 
+-- Authorization helpers. SECURITY DEFINER + fixed search_path so they read the
+-- role/ownership tables without recursing into those tables' own RLS policies.
+create or replace function public.has_role(check_role public.user_role)
+returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.user_roles
+    where user_id = auth.uid() and role = check_role
+  );
+$$;
+
+create or replace function public.coach_owns_player(p_player_id uuid)
+returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.players
+    where id = p_player_id and coach_id = auth.uid()
+  );
+$$;
+
 create or replace function public.register_coach()
 returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -197,31 +217,31 @@ returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare
   normalized text := public.normalize_invite_code(code);
-  claimed_player public.players%rowtype;
+  claimed_id uuid;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated';
   end if;
 
-  select * into claimed_player
-  from public.players
-  where invite_code = normalized
-    and auth_user_id is null
-  limit 1;
-
-  if not found then
-    return jsonb_build_object('success', false, 'error', 'Código de invitación no válido o ya usado.');
-  end if;
-
+  -- Atomic claim: the `auth_user_id is null` guard is part of the UPDATE so two
+  -- concurrent claims cannot both win. Under READ COMMITTED the second writer
+  -- blocks on the row lock, re-evaluates the predicate after the first commits,
+  -- and matches zero rows. No select-then-update race window.
   update public.players
   set auth_user_id = auth.uid()
-  where id = claimed_player.id;
+  where invite_code = normalized
+    and auth_user_id is null
+  returning id into claimed_id;
+
+  if claimed_id is null then
+    return jsonb_build_object('success', false, 'error', 'Código de invitación no válido o ya usado.');
+  end if;
 
   insert into public.user_roles(user_id, role)
   values (auth.uid(), 'player')
   on conflict do nothing;
 
-  return jsonb_build_object('success', true, 'role', 'player', 'player_id', claimed_player.id);
+  return jsonb_build_object('success', true, 'role', 'player', 'player_id', claimed_id);
 end;
 $$;
 
@@ -254,21 +274,51 @@ alter table public.training_sessions enable row level security;
 alter table public.check_ins enable row level security;
 alter table public.messages enable row level security;
 
+-- Drop any legacy/previous policy names so this migration is reproducible on a
+-- database that previously ran an earlier version of these policies.
+drop policy if exists user_roles_self on public.user_roles;
+drop policy if exists messages_coach_all on public.messages;
+drop policy if exists messages_player_rw on public.messages;
+drop policy if exists messages_coach_read_write on public.messages;
+drop policy if exists messages_player_read_write on public.messages;
+
+-- ---------------------------------------------------------------------------
+-- user_roles: read-only to the owner. Writes happen only through the
+-- SECURITY DEFINER RPCs (register_coach / claim_invite_code). No client write
+-- policy exists, so the frontend can never insert roles directly.
+-- ---------------------------------------------------------------------------
 drop policy if exists user_roles_self_read on public.user_roles;
 create policy user_roles_self_read on public.user_roles
   for select using (user_id = auth.uid());
 
+-- ---------------------------------------------------------------------------
+-- players: a coach (must hold the coach role) owns rows where coach_id is them.
+-- A player may only read their own linked row, never write to this table.
+-- ---------------------------------------------------------------------------
 drop policy if exists players_coach_all on public.players;
 create policy players_coach_all on public.players
-  for all using (coach_id = auth.uid()) with check (coach_id = auth.uid());
+  for all
+  using (public.has_role('coach') and coach_id = auth.uid())
+  with check (public.has_role('coach') and coach_id = auth.uid());
 
 drop policy if exists players_self_read on public.players;
 create policy players_self_read on public.players
   for select using (auth_user_id = auth.uid());
 
+-- ---------------------------------------------------------------------------
+-- matches / tasks / training_sessions: coach-owned. Writes require the coach
+-- role, ownership of the row (coach_id), and ownership of the referenced
+-- player when player_id is present. Players get read-only access to their own.
+-- ---------------------------------------------------------------------------
 drop policy if exists matches_coach_all on public.matches;
 create policy matches_coach_all on public.matches
-  for all using (coach_id = auth.uid()) with check (coach_id = auth.uid());
+  for all
+  using (public.has_role('coach') and coach_id = auth.uid())
+  with check (
+    public.has_role('coach')
+    and coach_id = auth.uid()
+    and (player_id is null or public.coach_owns_player(player_id))
+  );
 
 drop policy if exists matches_player_read on public.matches;
 create policy matches_player_read on public.matches
@@ -276,7 +326,13 @@ create policy matches_player_read on public.matches
 
 drop policy if exists tasks_coach_all on public.tasks;
 create policy tasks_coach_all on public.tasks
-  for all using (coach_id = auth.uid()) with check (coach_id = auth.uid());
+  for all
+  using (public.has_role('coach') and coach_id = auth.uid())
+  with check (
+    public.has_role('coach')
+    and coach_id = auth.uid()
+    and (player_id is null or public.coach_owns_player(player_id))
+  );
 
 drop policy if exists tasks_player_read on public.tasks;
 create policy tasks_player_read on public.tasks
@@ -284,27 +340,74 @@ create policy tasks_player_read on public.tasks
 
 drop policy if exists training_coach_all on public.training_sessions;
 create policy training_coach_all on public.training_sessions
-  for all using (coach_id = auth.uid()) with check (coach_id = auth.uid());
+  for all
+  using (public.has_role('coach') and coach_id = auth.uid())
+  with check (
+    public.has_role('coach')
+    and coach_id = auth.uid()
+    and (player_id is null or public.coach_owns_player(player_id))
+  );
 
 drop policy if exists training_player_read on public.training_sessions;
 create policy training_player_read on public.training_sessions
   for select using (player_id in (select public.my_player_ids()));
 
+-- ---------------------------------------------------------------------------
+-- check_ins: player-owned wellness data. Player (must hold player role) manages
+-- only their own check-ins; the owning coach can read them.
+-- ---------------------------------------------------------------------------
 drop policy if exists checkins_player_all on public.check_ins;
 create policy checkins_player_all on public.check_ins
-  for all using (player_id in (select public.my_player_ids()))
-  with check (player_id in (select public.my_player_ids()));
+  for all
+  using (public.has_role('player') and player_id in (select public.my_player_ids()))
+  with check (public.has_role('player') and player_id in (select public.my_player_ids()));
 
 drop policy if exists checkins_coach_read on public.check_ins;
 create policy checkins_coach_read on public.check_ins
   for select using (player_id in (select id from public.players where coach_id = auth.uid()));
 
-drop policy if exists messages_coach_read_write on public.messages;
-create policy messages_coach_read_write on public.messages
-  for all using (coach_id = auth.uid())
-  with check (coach_id = auth.uid() and sender = 'coach');
+-- ---------------------------------------------------------------------------
+-- messages: split into SELECT / INSERT / UPDATE so sender can never be spoofed
+-- or rewritten across parties. No FOR ALL, and no DELETE policy (deletes denied
+-- for everyone). UPDATE is scoped to each party's own-authored messages, so a
+-- player can never touch a coach message and a coach can never touch a player
+-- message; WITH CHECK additionally forbids flipping sender on your own message.
+-- ---------------------------------------------------------------------------
+drop policy if exists messages_coach_select on public.messages;
+create policy messages_coach_select on public.messages
+  for select using (coach_id = auth.uid());
 
-drop policy if exists messages_player_read_write on public.messages;
-create policy messages_player_read_write on public.messages
-  for all using (player_id in (select public.my_player_ids()))
+drop policy if exists messages_player_select on public.messages;
+create policy messages_player_select on public.messages
+  for select using (player_id in (select public.my_player_ids()));
+
+drop policy if exists messages_coach_insert on public.messages;
+create policy messages_coach_insert on public.messages
+  for insert
+  with check (
+    public.has_role('coach')
+    and coach_id = auth.uid()
+    and sender = 'coach'
+    and public.coach_owns_player(player_id)
+  );
+
+drop policy if exists messages_player_insert on public.messages;
+create policy messages_player_insert on public.messages
+  for insert
+  with check (
+    public.has_role('player')
+    and player_id in (select public.my_player_ids())
+    and sender = 'player'
+  );
+
+drop policy if exists messages_coach_update on public.messages;
+create policy messages_coach_update on public.messages
+  for update
+  using (coach_id = auth.uid() and sender = 'coach')
+  with check (coach_id = auth.uid() and sender = 'coach' and public.coach_owns_player(player_id));
+
+drop policy if exists messages_player_update on public.messages;
+create policy messages_player_update on public.messages
+  for update
+  using (player_id in (select public.my_player_ids()) and sender = 'player')
   with check (player_id in (select public.my_player_ids()) and sender = 'player');
