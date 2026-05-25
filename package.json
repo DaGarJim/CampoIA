@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "audit:prod": "npm audit --omit=dev --audit-level=moderate",
-    "quality:web": "npm run typecheck && npm run lint:ci && npm test && npm run build && npm run audit:prod && npm run test:e2e",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
+    "quality:web": "npm run typecheck && npm run lint:ci && npm test && npm run build && npm run check:bundle && npm run audit:prod && npm run test:e2e",
     "sync": "npm run build && cap sync",
     "ios": "npm run build && cap sync ios && cap open ios",
     "android": "npm run build && cap sync android && cap open android"

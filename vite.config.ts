@@ -14,6 +14,19 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Keep large, stable vendors out of the entry chunk so the initial
+        // index-*.js stays under budget (scripts/check-bundle-size.mjs) and
+        // benefits from long-term caching.
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'framer-motion': ['framer-motion'],
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

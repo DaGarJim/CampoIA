@@ -45,7 +45,7 @@ export function ReportsPage() {
                 <div className="truncate text-sm font-semibold">{p.name}</div>
                 <div className="truncate text-xs text-muted-foreground">{p.pos ?? '—'} · score {p.score ?? '—'}</div>
               </div>
-              <Button variant="secondary" size="sm" onClick={() => generatePlayerReport(p, name || 'Coach')}>
+              <Button variant="secondary" size="sm" onClick={() => void generatePlayerReport(p, name || 'Coach')}>
                 <Download /> PDF
               </Button>
             </Card>

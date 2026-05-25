@@ -1,8 +1,8 @@
-import { jsPDF } from 'jspdf';
 import type { Player } from '@/types/domain';
 
 /** Genera y descarga un informe PDF de un jugador (cliente, sin servidor). */
-export function generatePlayerReport(player: Player, coachName: string): void {
+export async function generatePlayerReport(player: Player, coachName: string): Promise<void> {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   const left = 18;
   let y = 24;
@@ -52,5 +52,11 @@ export function generatePlayerReport(player: Player, coachName: string): void {
     285,
   );
 
-  doc.save(`CAMPO_${player.name.replace(/\s+/g, '_')}.pdf`);
+  const safeName = player.name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 80);
+  doc.save(`CAMPO_${safeName || 'jugador'}.pdf`);
 }
