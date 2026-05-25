@@ -144,17 +144,17 @@ create index if not exists check_ins_player_id_idx on public.check_ins(player_id
 create index if not exists messages_coach_player_idx on public.messages(coach_id, player_id);
 
 create or replace function public.normalize_invite_code(code text)
-returns text language sql immutable as $$
+returns text language sql immutable set search_path = public as $$
   select upper(regexp_replace(coalesce(code, ''), '[^A-Za-z0-9]', '', 'g'));
 $$;
 
 create or replace function public.generate_invite_code()
-returns text language sql volatile as $$
+returns text language sql volatile set search_path = public as $$
   select upper(substr(encode(gen_random_bytes(4), 'hex'), 1, 6));
 $$;
 
 create or replace function public.ensure_player_invite_code()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   if new.invite_code is null or new.invite_code = '' then
     new.invite_code := public.generate_invite_code();
@@ -265,6 +265,24 @@ begin
   return jsonb_build_object('success', true);
 end;
 $$;
+
+-- Keep SECURITY DEFINER RPCs off the unauthenticated REST surface. The public
+-- RPCs below are intentionally callable by signed-in users only; helper
+-- functions stay available to authenticated queries because RLS policies call
+-- them during normal table access.
+revoke execute on function public.my_player_ids() from public;
+revoke execute on function public.has_role(public.user_role) from public;
+revoke execute on function public.coach_owns_player(uuid) from public;
+revoke execute on function public.register_coach() from public;
+revoke execute on function public.claim_invite_code(text) from public;
+revoke execute on function public.set_my_task_done(uuid, boolean) from public;
+
+grant execute on function public.my_player_ids() to authenticated;
+grant execute on function public.has_role(public.user_role) to authenticated;
+grant execute on function public.coach_owns_player(uuid) to authenticated;
+grant execute on function public.register_coach() to authenticated;
+grant execute on function public.claim_invite_code(text) to authenticated;
+grant execute on function public.set_my_task_done(uuid, boolean) to authenticated;
 
 alter table public.user_roles enable row level security;
 alter table public.players enable row level security;
