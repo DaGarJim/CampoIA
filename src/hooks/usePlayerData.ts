@@ -8,7 +8,7 @@ import {
   listMyTasks,
   type CreateCheckinInput,
 } from '@/services/player.service';
-import { setTaskDone } from '@/services/tasks.service';
+import { setMyTaskDone } from '@/services/tasks.service';
 
 export function useMyPlayer() {
   const { user } = useAuth();
@@ -47,7 +47,7 @@ export function useMyCheckins(playerId: string | null | undefined) {
 export function useToggleMyTask(playerId: string | null | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, done }: { id: string; done: boolean }) => setTaskDone(id, done),
+    mutationFn: ({ id, done }: { id: string; done: boolean }) => setMyTaskDone(id, done),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['my-tasks', playerId] }),
   });
 }

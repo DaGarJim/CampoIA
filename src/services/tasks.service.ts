@@ -38,3 +38,18 @@ export async function setTaskDone(id: string, done: boolean): Promise<void> {
   const { error } = await supabase.from('tasks').update({ done }).eq('id', id);
   if (error) throw error;
 }
+
+/**
+ * Completar tarea desde el portal del jugador. Usa la RPC `set_my_task_done`,
+ * que solo permite cambiar el flag `done` de tareas del propio jugador (no se
+ * permite actualizar campos arbitrarios ni tareas ajenas, ver RLS/RPC).
+ */
+export async function setMyTaskDone(id: string, done: boolean): Promise<void> {
+  const { data, error } = await supabase.rpc('set_my_task_done', {
+    task_id: id,
+    is_done: done,
+  });
+  if (error) throw error;
+  const result = data as { success?: boolean; error?: string } | null;
+  if (result?.success === false) throw new Error(result.error ?? 'No se pudo actualizar la tarea.');
+}
