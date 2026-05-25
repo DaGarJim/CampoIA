@@ -37,3 +37,25 @@
 - [ ] Revisar Capacitor 8 (actualización mayor) cuando el entorno lo permita;
       hoy fijado en 7.x. Migración: `npm i @capacitor/cli@8 @capacitor/core@8 ...`
       y `npx cap migrate`.
+
+## Validation evidence for PR
+
+Paste exact command results before requesting review:
+
+```text
+npm run quality:web -> PASS
+npm run sync -> PASS
+cd android && ./gradlew assembleDebug lintDebug -> PASS
+xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath ios/App/build CODE_SIGNING_ALLOWED=NO build -> PASS
+supabase db reset -> PASS
+```
+
+Manual smoke:
+
+- [ ] Coach signup creates/assigns coach role.
+- [ ] Coach creates player and sees invite code.
+- [ ] Player signup with invite code links to existing player row.
+- [ ] Player can complete own task.
+- [ ] Player cannot see another player's data.
+- [ ] Coach can send message with `sender = coach`.
+- [ ] Player cannot spoof `sender = coach`.
