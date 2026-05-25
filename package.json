@@ -18,8 +18,10 @@
     "android": "npm run build && cap sync android && cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.0.0",
     "@capacitor/app": "^7.0.0",
     "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
     "@capacitor/haptics": "^7.0.0",
     "@capacitor/keyboard": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.0",
