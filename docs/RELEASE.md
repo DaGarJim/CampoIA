@@ -1,5 +1,13 @@
 # Release checklist — CAMPO
 
+## Quality gates
+- [ ] `npm run quality:web` en verde.
+- [ ] `npm run sync` en verde.
+- [ ] `./gradlew assembleDebug lintDebug` en verde desde `android/`.
+- [ ] `xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath ios/App/build CODE_SIGNING_ALLOWED=NO build` en verde para simulator.
+- [ ] `npm audit --omit=dev --audit-level=moderate` sin vulnerabilidades.
+- [ ] Evidencia de E2E smoke adjunta al PR.
+
 ## Web
 - [ ] `npm run typecheck && npm run lint && npm test && npm run build` en verde.
 - [ ] Variables de entorno de producción configuradas en el host.
