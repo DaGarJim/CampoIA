@@ -3,6 +3,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { ClipboardCheck, Home, ListChecks, Trophy, User, type LucideIcon } from 'lucide-react';
 import { applyTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
+import { tapHaptic } from '@/lib/haptics';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 interface PlayerNavItem {
   to: string;
@@ -28,7 +30,9 @@ export function PlayerShell() {
   return (
     <div className="min-h-dvh bg-background">
       <main className="mx-auto max-w-md px-4 pb-24 pt-4 safe-top">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md border-t border-border bg-card/95 backdrop-blur safe-bottom">
         {NAV.map((item) => (
@@ -36,6 +40,7 @@ export function PlayerShell() {
             key={item.to}
             to={item.to}
             end={item.end}
+            onClick={() => void tapHaptic()}
             className={({ isActive }) =>
               cn(
                 'flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-semibold transition-colors active:scale-95',

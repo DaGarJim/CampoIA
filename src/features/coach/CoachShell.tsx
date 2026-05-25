@@ -16,8 +16,10 @@ import {
 import { useAuth } from '@/features/auth/AuthProvider';
 import { signOut } from '@/services/auth.service';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { Button } from '@/components/ui/button';
 import { cn, initials } from '@/lib/utils';
+import { tapHaptic } from '@/lib/haptics';
 
 interface NavItem {
   to: string;
@@ -123,7 +125,9 @@ export function CoachShell() {
         </header>
 
         <main className="flex-1 px-4 pb-24 pt-5 lg:px-7 lg:pb-10">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
       </div>
 
@@ -134,6 +138,7 @@ export function CoachShell() {
             key={item.to}
             to={item.to}
             end={item.end}
+            onClick={() => void tapHaptic()}
             className={({ isActive }) =>
               cn(
                 'flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors active:scale-95',
