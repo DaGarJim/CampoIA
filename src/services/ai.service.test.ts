@@ -65,7 +65,7 @@ describe('ai.service', () => {
     const { buildCoachContext } = await import('./ai.service');
     const ctx = buildCoachContext(
       [makePlayer({ id: 'a', name: 'Ana', score: 80 })],
-      [{ id: 'm', coach_id: 'c', player_id: 'a', date: '2026-05-01', rival: 'X', result: '2-0', mins: 90, called: 'yes', role: 'Titular', notes: null, created_at: '' }],
+      [{ id: 'm', coach_id: 'c', player_id: 'a', date: '2026-05-01', rival: 'X', result: '2-0', mins: 90, called: 'yes', role: 'Titular', fatigue: null, notes: null, created_at: '' }],
       [],
     );
     expect(ctx).toContain('JUGADORES (1)');

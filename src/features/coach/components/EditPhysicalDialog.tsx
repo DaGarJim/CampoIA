@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUpdatePlayer } from '@/hooks/usePlayers';
+import { createAssessment } from '@/services/assessments.service';
 import { notifyHaptic } from '@/lib/haptics';
 import { toast } from '@/lib/toast';
 import type { Player, UpdatePlayerInput } from '@/types/domain';
@@ -48,6 +49,21 @@ export function EditPhysicalDialog({ player, trigger }: { player: Player; trigge
       patch[key] = raw === '' ? null : Number(raw);
     }
     await update.mutateAsync({ id: player.id, patch });
+    // Instantánea en el histórico (tabla assessments) para tracking de evolución.
+    try {
+      await createAssessment(player.coach_id, player.id, {
+        height_cm: patch.height_cm ?? undefined,
+        weight_kg: patch.weight_kg ?? undefined,
+        vertical_jump: patch.vertical_jump ?? undefined,
+        horizontal_jump: patch.horizontal_jump ?? undefined,
+        flexibility_cmj: patch.flexibility_cmj ?? undefined,
+        rm_squat: patch.rm_squat ?? undefined,
+        rm_deadlift: patch.rm_deadlift ?? undefined,
+        rm_bench: patch.rm_bench ?? undefined,
+      });
+    } catch {
+      // El histórico es complementario: no bloquea el guardado principal.
+    }
     await notifyHaptic();
     toast.success('Valoración física actualizada');
     setOpen(false);

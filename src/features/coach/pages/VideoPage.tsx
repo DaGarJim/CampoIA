@@ -2,10 +2,13 @@ import { useRef, useState } from 'react';
 import { Clapperboard, Film, Loader2, Plus, Star, Trash2, Upload } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useCreateVideo, useDeleteVideo, useUpdateVideoHighlights, useVideos } from '@/hooks/useVideos';
+import { usePlayers } from '@/hooks/usePlayers';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +25,11 @@ import type { Highlight, Video } from '@/types/domain';
 function AddVideoDialog() {
   const { user } = useAuth();
   const create = useCreateVideo();
+  const { data: players } = usePlayers();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
+  const [playerId, setPlayerId] = useState('');
+  const [notes, setNotes] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,10 +39,18 @@ function AddVideoDialog() {
     setBusy(true);
     try {
       const url = await uploadVideo(user.id, file);
-      await create.mutateAsync({ title: title.trim() || file.name, url, size_mb: +(file.size / (1024 * 1024)).toFixed(1) });
+      await create.mutateAsync({
+        title: title.trim() || file.name,
+        url,
+        size_mb: +(file.size / (1024 * 1024)).toFixed(1),
+        player_id: playerId || null,
+        notes,
+      });
       await notifyHaptic();
       toast.success('Vídeo subido');
       setTitle('');
+      setPlayerId('');
+      setNotes('');
       setFile(null);
       setOpen(false);
     } catch (err) {
@@ -62,6 +76,21 @@ function AddVideoDialog() {
           <div>
             <Label htmlFor="v-title">Título</Label>
             <Input id="v-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej: Análisis vs Las Rozas" />
+          </div>
+          <div>
+            <Label htmlFor="v-player">Jugador (opcional)</Label>
+            <Select id="v-player" value={playerId} onChange={(e) => setPlayerId(e.target.value)}>
+              <option value="">Sin asignar</option>
+              {(players ?? []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="v-notes">Notas (opcional)</Label>
+            <Textarea id="v-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Contexto del vídeo…" />
           </div>
           <div>
             <Label htmlFor="v-file">Archivo</Label>

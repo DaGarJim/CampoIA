@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { signOut } from '@/services/auth.service';
+import { usePlayers } from '@/hooks/usePlayers';
+import { useMatches } from '@/hooks/useMatches';
+import { useTasks } from '@/hooks/useTasks';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { Button } from '@/components/ui/button';
@@ -78,6 +81,15 @@ export function CoachShell() {
   const location = useLocation();
   const title = TITLES[location.pathname] ?? 'CAMPO';
 
+  const { data: players } = usePlayers();
+  const { data: matches } = useMatches();
+  const { data: tasks } = useTasks();
+  const counts: Record<string, number> = {
+    '/players': players?.length ?? 0,
+    '/matches': matches?.length ?? 0,
+    '/tasks': (tasks ?? []).filter((t) => !t.done).length,
+  };
+
   return (
     <div className="flex min-h-dvh bg-background">
       {/* Sidebar (desktop) */}
@@ -96,6 +108,11 @@ export function CoachShell() {
             <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => navLinkClass(isActive)}>
               <item.icon className="size-[18px]" />
               {item.label}
+              {counts[item.to] > 0 && (
+                <span className="ml-auto grid min-w-5 place-items-center rounded-full bg-secondary px-1.5 text-[11px] font-bold text-muted-foreground">
+                  {counts[item.to]}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

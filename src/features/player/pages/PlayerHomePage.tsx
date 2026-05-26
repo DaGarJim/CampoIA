@@ -116,6 +116,20 @@ export function PlayerHomePage() {
         </Card>
       ) : (
         <>
+          {/* Plan de desarrollo */}
+          {(player.strength || player.improve) && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Card className="border-l-4 border-l-success p-3.5">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wide text-success">Fortaleza</h3>
+                <p className="mt-1 text-sm text-foreground">{player.strength || '—'}</p>
+              </Card>
+              <Card className="border-l-4 border-l-warning p-3.5">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wide text-warning">A mejorar</h3>
+                <p className="mt-1 text-sm text-foreground">{player.improve || '—'}</p>
+              </Card>
+            </div>
+          )}
+
           {/* Misiones */}
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between">

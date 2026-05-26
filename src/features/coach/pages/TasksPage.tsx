@@ -4,8 +4,9 @@ import { usePlayers } from '@/hooks/usePlayers';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { TaskPriority } from '@/types/domain';
+import type { Task, TaskPriority } from '@/types/domain';
 import { AddTaskDialog } from '../components/AddTaskDialog';
 import { tapHaptic } from '@/lib/haptics';
 
@@ -20,6 +21,42 @@ export function TasksPage() {
   const { data: players } = usePlayers();
   const toggle = useToggleTask();
   const nameById = new Map((players ?? []).map((p) => [p.id, p.name]));
+  const pending = (tasks ?? []).filter((t) => !t.done);
+  const completed = (tasks ?? []).filter((t) => t.done);
+
+  function TaskRow({ t }: { t: Task }) {
+    const prio = PRIORITY[(t.priority ?? 'normal') as TaskPriority];
+    return (
+      <Card className="flex items-center gap-3 p-3.5">
+        <button
+          type="button"
+          aria-label={t.done ? 'Marcar pendiente' : 'Marcar hecha'}
+          onClick={() => {
+            void tapHaptic();
+            toggle.mutate({ id: t.id, done: !t.done });
+          }}
+          className={cn(
+            'grid size-6 shrink-0 place-items-center rounded-md border-2 transition-colors',
+            t.done ? 'border-success bg-success text-white' : 'border-border text-transparent',
+          )}
+        >
+          <Check className="size-3.5" />
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className={cn('truncate text-sm font-medium', t.done && 'text-muted-foreground line-through')}>
+            {t.description}
+          </div>
+          <div className="truncate text-xs text-muted-foreground">
+            {nameById.get(t.player_id ?? '') ?? '—'}
+            {t.due_date ? ` · vence ${t.due_date}` : ''}
+          </div>
+        </div>
+        <Badge variant={prio.variant} className="shrink-0">
+          {prio.label}
+        </Badge>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -54,41 +91,34 @@ export function TasksPage() {
           </p>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {(tasks ?? []).map((t) => {
-            const prio = PRIORITY[(t.priority ?? 'normal') as TaskPriority];
-            return (
-              <Card key={t.id} className="flex items-center gap-3 p-3.5">
-                <button
-                  type="button"
-                  aria-label={t.done ? 'Marcar pendiente' : 'Marcar hecha'}
-                  onClick={() => {
-                    void tapHaptic();
-                    toggle.mutate({ id: t.id, done: !t.done });
-                  }}
-                  className={cn(
-                    'grid size-6 shrink-0 place-items-center rounded-md border-2 transition-colors',
-                    t.done ? 'border-success bg-success text-white' : 'border-border text-transparent',
-                  )}
-                >
-                  <Check className="size-3.5" />
-                </button>
-                <div className="min-w-0 flex-1">
-                  <div className={cn('truncate text-sm font-medium', t.done && 'text-muted-foreground line-through')}>
-                    {t.description}
-                  </div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {nameById.get(t.player_id ?? '') ?? '—'}
-                    {t.due_date ? ` · vence ${t.due_date}` : ''}
-                  </div>
-                </div>
-                <Badge variant={prio.variant} className="shrink-0">
-                  {prio.label}
-                </Badge>
-              </Card>
-            );
-          })}
-        </div>
+        <Tabs defaultValue="pending">
+          <TabsList>
+            <TabsTrigger value="pending">Pendientes ({pending.length})</TabsTrigger>
+            <TabsTrigger value="done">Completadas ({completed.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="pending">
+            {pending.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Sin tareas pendientes 🎉</p>
+            ) : (
+              <div className="space-y-2">
+                {pending.map((t) => (
+                  <TaskRow key={t.id} t={t} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="done">
+            {completed.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Aún no hay tareas completadas.</p>
+            ) : (
+              <div className="space-y-2">
+                {completed.map((t) => (
+                  <TaskRow key={t.id} t={t} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

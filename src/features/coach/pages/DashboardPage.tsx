@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { usePlayers } from '@/hooks/usePlayers';
 import { useMatches } from '@/hooks/useMatches';
 import { useTrainings } from '@/hooks/useTrainings';
+import { useTasks } from '@/hooks/useTasks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,18 +40,25 @@ export function DashboardPage() {
   const players = usePlayers();
   const matches = useMatches();
   const trainings = useTrainings();
+  const tasks = useTasks();
   const firstName = name?.split(' ')[0] || 'Coach';
 
   const list: Player[] = players.data ?? [];
   const atRisk = list.filter((p) => p.status === 'risk' || p.status === 'injured');
-  const avgAdherence =
-    list.length > 0
-      ? Math.round(list.reduce((sum, p) => sum + (p.adherence ?? 0), 0) / list.length)
-      : 0;
   const top = [...list].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 3);
   const loading = players.isLoading;
 
   const playerName = (id: string | null) => list.find((p) => p.id === id)?.name ?? '—';
+  const pendingTasks = (tasks.data ?? []).filter((t) => !t.done);
+  const priorityRank = { urgent: 0, high: 1, normal: 2 } as const;
+  const upcomingTasks = [...pendingTasks]
+    .sort((a, b) => {
+      const pa = priorityRank[(a.priority ?? 'normal') as keyof typeof priorityRank];
+      const pb = priorityRank[(b.priority ?? 'normal') as keyof typeof priorityRank];
+      if (pa !== pb) return pa - pb;
+      return (a.due_date ?? '9999').localeCompare(b.due_date ?? '9999');
+    })
+    .slice(0, 3);
   const weekStart = startOfWeek(new Date());
   const week = DAY_LABELS.map((label, i) => {
     const d = new Date(weekStart);
@@ -109,9 +117,9 @@ export function DashboardPage() {
         ) : (
           <>
             <Kpi label="Jugadores" value={list.length} />
-            <Kpi label="Adherencia media" value={`${avgAdherence}%`} accent="bg-accent/80" />
-            <Kpi label="Partidos" value={matches.data?.length ?? 0} accent="bg-success/80" />
-            <Kpi label="En riesgo" value={atRisk.length} accent="bg-warning/80" />
+            <Kpi label="Partidos" value={matches.data?.length ?? 0} accent="bg-accent/80" />
+            <Kpi label="Sesiones" value={trainings.data?.length ?? 0} accent="bg-success/80" />
+            <Kpi label="Tareas pendientes" value={pendingTasks.length} accent="bg-warning/80" />
           </>
         )}
       </div>
@@ -174,6 +182,35 @@ export function DashboardPage() {
             </Card>
           </section>
         </div>
+
+        <section className="space-y-3">
+          <h2 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Próximas tareas
+          </h2>
+          <Card className="divide-y divide-border">
+            {upcomingTasks.length === 0 ? (
+              <div className="p-5 text-sm text-muted-foreground">No hay tareas pendientes.</div>
+            ) : (
+              upcomingTasks.map((t) => (
+                <div key={t.id} className="flex items-center gap-3 p-3.5">
+                  <Badge
+                    variant={t.priority === 'urgent' ? 'danger' : t.priority === 'high' ? 'warning' : 'muted'}
+                    className="shrink-0"
+                  >
+                    {t.priority === 'urgent' ? 'Urgente' : t.priority === 'high' ? 'Alta' : 'Normal'}
+                  </Badge>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">{t.description}</div>
+                    <div className="truncate text-xs text-muted-foreground">
+                      {playerName(t.player_id)}
+                      {t.due_date ? ` · vence ${t.due_date}` : ''}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </Card>
+        </section>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
           <Card className="p-4">

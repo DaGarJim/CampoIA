@@ -59,7 +59,9 @@ function player(partial: Partial<Player> & { id: string; name: string }): Player
     scored: 3,
     assisted: 2,
     sleep: 7.5,
+    rpe: 6.5,
     tag: null,
+    player_email: null,
     height_cm: 176,
     weight_kg: 68,
     vertical_jump: 42,
@@ -99,9 +101,9 @@ export const demoPlayers: Player[] = [
 ];
 
 const demoMatches: Match[] = [
-  { id: 'm1', coach_id: DEMO_COACH_ID, player_id: DEMO_PLAYER_ID, date: todayMinus(3), rival: 'Las Rozas CF', result: '2-1', mins: 90, called: 'yes', role: 'Titular', notes: 'Gran partido, 1 gol.', created_at: todayMinus(3) },
-  { id: 'm2', coach_id: DEMO_COACH_ID, player_id: 'p2', date: todayMinus(10), rival: 'Pozuelo', result: '0-0', mins: 65, called: 'yes', role: 'Titular', notes: null, created_at: todayMinus(10) },
-  { id: 'm3', coach_id: DEMO_COACH_ID, player_id: 'p3', date: todayMinus(17), rival: 'Alcobendas', result: '1-3', mins: 45, called: 'yes', role: 'Suplente', notes: null, created_at: todayMinus(17) },
+  { id: 'm1', coach_id: DEMO_COACH_ID, player_id: DEMO_PLAYER_ID, date: todayMinus(3), rival: 'Las Rozas CF', result: '2-1', mins: 90, called: 'yes', role: 'Titular', fatigue: 6, notes: 'Gran partido, 1 gol.', created_at: todayMinus(3) },
+  { id: 'm2', coach_id: DEMO_COACH_ID, player_id: 'p2', date: todayMinus(10), rival: 'Pozuelo', result: '0-0', mins: 65, called: 'yes', role: 'Titular', fatigue: 5, notes: null, created_at: todayMinus(10) },
+  { id: 'm3', coach_id: DEMO_COACH_ID, player_id: 'p3', date: todayMinus(17), rival: 'Alcobendas', result: '1-3', mins: 45, called: 'yes', role: 'Suplente', fatigue: 8, notes: null, created_at: todayMinus(17) },
 ];
 
 const demoTasks: Task[] = [
@@ -127,7 +129,7 @@ const demoCheckins: CheckIn[] = [
 ];
 
 const demoVideos: Video[] = [
-  { id: 'v1', coach_id: DEMO_COACH_ID, title: 'Entreno finalización', url: '', size_mb: 24.5, highlights: [{ t: 45, label: 'Buen control' }, { t: 132, label: 'Definición' }], created_at: todayMinus(2) },
+  { id: 'v1', coach_id: DEMO_COACH_ID, player_id: DEMO_PLAYER_ID, match_id: null, title: 'Entreno finalización', url: '', size_mb: 24.5, notes: 'Trabajo de definición', highlights: [{ t: 45, label: 'Buen control' }, { t: 132, label: 'Definición' }], created_at: todayMinus(2) },
 ];
 
 const demoVideoAnalysis: VideoAnalysis[] = [

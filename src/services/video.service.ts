@@ -16,12 +16,23 @@ export interface CreateVideoInput {
   title: string;
   url: string;
   size_mb?: number;
+  player_id?: string | null;
+  match_id?: string | null;
+  notes?: string;
 }
 
 export async function createVideo(coachId: string, input: CreateVideoInput): Promise<Video> {
   const { data, error } = await supabase
     .from('videos')
-    .insert({ coach_id: coachId, title: input.title, url: input.url, size_mb: input.size_mb ?? null })
+    .insert({
+      coach_id: coachId,
+      title: input.title,
+      url: input.url,
+      size_mb: input.size_mb ?? null,
+      player_id: input.player_id || null,
+      match_id: input.match_id || null,
+      notes: input.notes?.trim() || null,
+    })
     .select()
     .single();
   if (error) throw error;

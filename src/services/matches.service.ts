@@ -19,6 +19,7 @@ export interface CreateMatchInput {
   mins?: number;
   called?: string;
   role?: string;
+  fatigue?: number;
   notes?: string;
 }
 
@@ -32,6 +33,7 @@ export async function createMatch(coachId: string, input: CreateMatchInput): Pro
     mins: input.mins ?? 0,
     called: input.called ?? 'yes',
     role: input.role ?? null,
+    fatigue: input.fatigue ?? null,
     notes: input.notes?.trim() || null,
   };
   const { data, error } = await supabase.from('matches').insert(payload).select().single();

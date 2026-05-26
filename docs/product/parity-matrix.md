@@ -37,6 +37,18 @@ Decision values:
 | Onboarding / demo | `legacy/index.html` onboarding | Implemented | Migrated | Modal primer login + carga idempotente de jugadores demo. |
 | Federation ficha import | `legacy/index.html` import IA | Implemented | Migrated | Modo `player-import` de la Edge Function. |
 
+## Paridad con la spec v10.0 (migración 0003)
+
+Cierre de gaps detectados al contrastar con `CAMPO v10.0 — Especificación Técnica Completa`:
+- `players.rpe` y `players.player_email` (este último se rellena en `claim_invite_code`).
+- `matches.fatigue` (1-10), capturado en el alta de partido.
+- `videos.player_id` / `match_id` / `notes` (asociar vídeo a jugador/partido).
+- Tabla `assessments` (histórico de valoraciones físicas) con RLS; se registra una instantánea al editar el físico del jugador.
+- Físicos a `NUMERIC(5,1)` (conserva decimales).
+- UI: KPIs del dashboard (Jugadores/Partidos/Sesiones/Tareas pendientes) + "Próximas tareas"; RPE en Hábitos; "Plan de desarrollo" en el home del jugador; pestañas Pendientes/Completadas en Tareas; badges numéricos en la navegación del coach.
+
+Diferencias intencionales mantenidas (no afectan a la funcionalidad; coherentes dentro del esquema React): `messages.body` (spec `text`), `check_ins.pain_level` (spec `pain`). El portal del jugador es gamificado (XP/anillos) y se añadieron extras sobre la spec (Vídeo análisis, highlights, branding/export, onboarding/demo, completar entrenos).
+
 ## Backend de soporte (migración 0002)
 
 - `players`: campos físicos (vertical_jump, horizontal_jump, flexibility_cmj, rm_*), `ai_attributes`/`ai_metrics` (jsonb), `strength`/`improve`, `demo`.

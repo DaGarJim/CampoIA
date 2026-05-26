@@ -89,6 +89,7 @@ export function HabitsPage() {
                         {c ? (
                           <>
                             <span>😴 {c.sleep_hours ?? '—'}h</span>
+                            <span>🔥 RPE {p.rpe ?? '—'}</span>
                             <span>{MOODS[(c.mood ?? 3) - 1]} ánimo</span>
                             <span>⚡ {c.energy ?? '—'}/5</span>
                             <span className={painColor(c.pain_level)}>

@@ -28,6 +28,10 @@ const schema = z.object({
   mins: z.coerce.number().int().min(0).max(120).optional(),
   role: z.string().optional(),
   called: z.string().optional(),
+  fatigue: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().min(1).max(10).optional(),
+  ),
   notes: z.string().optional(),
 });
 
@@ -61,6 +65,7 @@ export function AddMatchDialog({
       mins: values.mins,
       role: values.role,
       called: values.called,
+      fatigue: values.fatigue,
       notes: values.notes,
     });
     await notifyHaptic();
@@ -143,6 +148,11 @@ export function AddMatchDialog({
                 <option value="no">No</option>
               </Select>
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="m-fatigue">Fatiga (1-10)</Label>
+            <Input id="m-fatigue" type="number" min={1} max={10} placeholder="Nivel de fatiga" {...register('fatigue')} />
           </div>
 
           <div>

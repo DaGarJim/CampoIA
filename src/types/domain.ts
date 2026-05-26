@@ -46,7 +46,9 @@ export interface Player {
   scored: number | null;
   assisted: number | null;
   sleep: number | null;
+  rpe: number | null;
   tag: string | null;
+  player_email: string | null;
   height_cm: number | null;
   weight_kg: number | null;
   vertical_jump: number | null;
@@ -112,6 +114,7 @@ export interface Match {
   mins: number | null;
   called: string | null;
   role: string | null;
+  fatigue: number | null;
   notes: string | null;
   created_at: string;
 }
@@ -178,10 +181,32 @@ export interface Highlight {
 export interface Video {
   id: string;
   coach_id: string;
+  player_id: string | null;
+  match_id: string | null;
   title: string;
   url: string;
   size_mb: number | null;
+  notes: string | null;
   highlights: Highlight[];
+  created_at: string;
+}
+
+/** Valoración física histórica (tabla assessments). */
+export interface Assessment {
+  id: string;
+  coach_id: string;
+  player_id: string;
+  date: string;
+  height_cm: number | null;
+  weight_kg: number | null;
+  vertical_jump: number | null;
+  horizontal_jump: number | null;
+  flexibility_cmj: number | null;
+  rm_squat: number | null;
+  rm_deadlift: number | null;
+  rm_bench: number | null;
+  notes: string | null;
+  ai_analysis: unknown | null;
   created_at: string;
 }
 
