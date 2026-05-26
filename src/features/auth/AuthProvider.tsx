@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { detectRole, displayName, getCurrentSession, onAuthChange } from '@/services/auth.service';
+import { buildDemoAuthState, isDemo } from '@/lib/demo';
 import type { Role } from '@/types/domain';
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unprovisioned';
@@ -24,9 +25,10 @@ const initialState: AuthState = {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>(initialState);
+  const [state, setState] = useState<AuthState>(() => (isDemo() ? buildDemoAuthState() : initialState));
 
   useEffect(() => {
+    if (isDemo()) return;
     let active = true;
 
     async function resolve(session: Session | null) {

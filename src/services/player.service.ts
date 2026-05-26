@@ -48,17 +48,31 @@ export interface CreateCheckinInput {
   mood?: number;
   energy?: number;
   sleep_hours?: number;
+  pain_level?: number;
+  pain_zone?: string;
   notes?: string;
 }
 
+/** El jugador fija su propia foto de perfil (RPC RLS-safe). */
+export async function setMyPhoto(url: string): Promise<void> {
+  const { error } = await supabase.rpc('set_my_photo', { url });
+  if (error) throw error;
+}
+
 export async function createCheckin(input: CreateCheckinInput): Promise<void> {
-  const { error } = await supabase.from('check_ins').insert({
-    player_id: input.player_id,
-    date: input.date,
-    mood: input.mood ?? null,
-    energy: input.energy ?? null,
-    sleep_hours: input.sleep_hours ?? null,
-    notes: input.notes?.trim() || null,
-  });
+  // upsert por (player_id, date): un check-in por día (constraint en 0001).
+  const { error } = await supabase.from('check_ins').upsert(
+    {
+      player_id: input.player_id,
+      date: input.date,
+      mood: input.mood ?? null,
+      energy: input.energy ?? null,
+      sleep_hours: input.sleep_hours ?? null,
+      pain_level: input.pain_level ?? null,
+      pain_zone: input.pain_zone?.trim() || null,
+      notes: input.notes?.trim() || null,
+    },
+    { onConflict: 'player_id,date' },
+  );
   if (error) throw error;
 }

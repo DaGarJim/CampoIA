@@ -4,9 +4,11 @@ import {
   createPlayer,
   deletePlayer,
   listPlayers,
+  seedDemoPlayers,
+  updatePlayer,
   updatePlayerStatus,
 } from '@/services/players.service';
-import type { CreatePlayerInput, PlayerStatus } from '@/types/domain';
+import type { CreatePlayerInput, PlayerStatus, UpdatePlayerInput } from '@/types/domain';
 
 function useCoachId(): string {
   const { user } = useAuth();
@@ -37,6 +39,24 @@ export function useUpdatePlayerStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: PlayerStatus }) =>
       updatePlayerStatus(id, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['players', coachId] }),
+  });
+}
+
+export function useUpdatePlayer() {
+  const coachId = useCoachId();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: UpdatePlayerInput }) => updatePlayer(id, patch),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['players', coachId] }),
+  });
+}
+
+export function useSeedDemoPlayers() {
+  const coachId = useCoachId();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => seedDemoPlayers(coachId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['players', coachId] }),
   });
 }

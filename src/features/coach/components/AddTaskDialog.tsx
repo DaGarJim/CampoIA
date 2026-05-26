@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,7 +31,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function AddTaskDialog() {
+export function AddTaskDialog({
+  defaultPlayerId,
+  trigger,
+}: { defaultPlayerId?: string; trigger?: ReactNode } = {}) {
   const [open, setOpen] = useState(false);
   const { data: players } = usePlayers();
   const create = useCreateTask();
@@ -42,7 +45,7 @@ export function AddTaskDialog() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { type: 'Técnica', priority: 'normal' },
+    defaultValues: { type: 'Técnica', priority: 'normal', player_id: defaultPlayerId ?? '' },
   });
 
   async function onSubmit(values: FormValues) {
@@ -54,16 +57,18 @@ export function AddTaskDialog() {
       due_date: values.due_date || undefined,
     });
     await notifyHaptic();
-    reset({ type: 'Técnica', priority: 'normal' });
+    reset({ type: 'Técnica', priority: 'normal', player_id: defaultPlayerId ?? '' });
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={(players?.length ?? 0) === 0}>
-          <Plus /> Nueva tarea
-        </Button>
+        {trigger ?? (
+          <Button disabled={(players?.length ?? 0) === 0}>
+            <Plus /> Nueva tarea
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -71,20 +76,22 @@ export function AddTaskDialog() {
           <DialogDescription>Asigna una tarea a un jugador.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <div>
-            <Label htmlFor="t-player">Jugador</Label>
-            <Select id="t-player" defaultValue="" {...register('player_id')}>
-              <option value="" disabled>
-                Elige…
-              </option>
-              {(players ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+          {!defaultPlayerId && (
+            <div>
+              <Label htmlFor="t-player">Jugador</Label>
+              <Select id="t-player" defaultValue="" {...register('player_id')}>
+                <option value="" disabled>
+                  Elige…
                 </option>
-              ))}
-            </Select>
-            {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
-          </div>
+                {(players ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </Select>
+              {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
+            </div>
+          )}
           <div>
             <Label htmlFor="t-desc">Descripción</Label>
             <Input id="t-desc" placeholder="Ej: 20 min de movilidad de cadera" {...register('description')} />

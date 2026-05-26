@@ -22,3 +22,15 @@ export async function sendMessage(coachId: string, playerId: string, body: strin
   });
   if (error) throw error;
 }
+
+/** Mensaje enviado por el jugador (sender='player', exigido por RLS). */
+export async function sendPlayerMessage(coachId: string, playerId: string, body: string): Promise<void> {
+  const { error } = await supabase.from('messages').insert({
+    coach_id: coachId,
+    player_id: playerId,
+    sender: 'player',
+    body: body.trim(),
+    read: false,
+  });
+  if (error) throw error;
+}

@@ -1,11 +1,14 @@
-import { LogOut } from 'lucide-react';
+import { useRef } from 'react';
+import { Camera, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { useMyPlayer } from '@/hooks/usePlayerData';
+import { useMyPlayer, useSetMyPhoto } from '@/hooks/usePlayerData';
 import { signOut } from '@/services/auth.service';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { initials } from '@/lib/utils';
+import { uploadMyPhoto } from '@/lib/storage';
+import { toast } from '@/lib/toast';
 import { levelOf } from '../lib/gamify';
 
 function Row({ label, value }: { label: string; value: string | number }) {
@@ -20,6 +23,22 @@ function Row({ label, value }: { label: string; value: string | number }) {
 export function PlayerProfilePage() {
   const { name, user } = useAuth();
   const { data: player, isLoading } = useMyPlayer();
+  const setPhoto = useSetMyPhoto();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    try {
+      const url = await uploadMyPhoto(user.id, file);
+      await setPhoto.mutateAsync(url);
+      toast.success('Foto actualizada');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo subir la foto.');
+    } finally {
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
 
   return (
     <div className="space-y-5 pt-1">
@@ -31,9 +50,22 @@ export function PlayerProfilePage() {
         <Card className="overflow-hidden">
           <div className="relative bg-gradient-to-br from-[#5b21b6] to-[#0891b2] p-5 text-white">
             <div className="flex items-center gap-3">
-              <div className="grid size-14 place-items-center rounded-2xl bg-white/20 font-display text-xl font-extrabold">
-                {initials(player?.name ?? name)}
-              </div>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="group relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white/20 font-display text-xl font-extrabold"
+                aria-label="Cambiar foto"
+              >
+                {player?.photo_url ? (
+                  <img src={player.photo_url} alt={player.name ?? ''} className="size-full object-cover" />
+                ) : (
+                  initials(player?.name ?? name)
+                )}
+                <span className="absolute inset-0 grid place-items-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="size-5" />
+                </span>
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhoto} />
               <div>
                 <div className="font-display text-xl font-extrabold">{player?.name ?? name}</div>
                 <div className="text-sm text-white/80">

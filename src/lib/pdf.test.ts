@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Player } from '@/types/domain';
+import { makePlayer } from '@/test/factories';
 
 const saveMock = vi.hoisted(() => vi.fn());
 const jsPDFCtor = vi.hoisted(() =>
@@ -9,40 +9,15 @@ const jsPDFCtor = vi.hoisted(() =>
     text: vi.fn(),
     setDrawColor: vi.fn(),
     line: vi.fn(),
+    splitTextToSize: vi.fn((t: string) => [t]),
     save: saveMock,
   })),
 );
 
 vi.mock('jspdf', () => ({ jsPDF: jsPDFCtor }));
 
-function player(name: string): Player {
-  return {
-    id: 'p1',
-    coach_id: 'c1',
-    auth_user_id: null,
-    name,
-    pos: 'MC',
-    pos_group: null,
-    age: 20,
-    foot: 'Derecho',
-    club: 'CAMPO FC',
-    category: null,
-    status: 'available',
-    trend: 'eq',
-    score: 80,
-    adherence: 90,
-    mins: 100,
-    callups: 5,
-    played: 4,
-    scored: 2,
-    assisted: 1,
-    sleep: null,
-    tag: null,
-    height_cm: null,
-    weight_kg: null,
-    photo_url: null,
-    created_at: '2026-05-25T00:00:00Z',
-  };
+function player(name: string) {
+  return makePlayer({ name, pos: 'MC', age: 20, score: 80, adherence: 90 });
 }
 
 describe('generatePlayerReport', () => {
@@ -68,5 +43,20 @@ describe('generatePlayerReport', () => {
     const { generatePlayerReport } = await import('./pdf');
     await generatePlayerReport(player('!!! ###'), 'Coach');
     expect(saveMock).toHaveBeenCalledWith('CAMPO_jugador.pdf');
+  });
+});
+
+describe('generatePlayerDossier', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('genera el dossier con sufijo _dossier y es async', async () => {
+    const { generatePlayerDossier } = await import('./pdf');
+    const result = generatePlayerDossier(player('María Núñez'), null);
+    expect(result).toBeInstanceOf(Promise);
+    await result;
+    expect(jsPDFCtor).toHaveBeenCalledTimes(1);
+    expect(saveMock).toHaveBeenCalledWith('CAMPO_Maria_Nunez_dossier.pdf');
   });
 });

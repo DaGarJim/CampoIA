@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,7 +33,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function AddMatchDialog() {
+export function AddMatchDialog({
+  defaultPlayerId,
+  trigger,
+}: { defaultPlayerId?: string; trigger?: ReactNode } = {}) {
   const [open, setOpen] = useState(false);
   const { data: players } = usePlayers();
   const create = useCreateMatch();
@@ -42,7 +45,10 @@ export function AddMatchDialog() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { called: 'yes', role: 'Titular' } });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { called: 'yes', role: 'Titular', player_id: defaultPlayerId ?? '' },
+  });
 
   const hasPlayers = (players?.length ?? 0) > 0;
 
@@ -58,16 +64,18 @@ export function AddMatchDialog() {
       notes: values.notes,
     });
     await notifyHaptic();
-    reset({ called: 'yes', role: 'Titular' });
+    reset({ called: 'yes', role: 'Titular', player_id: defaultPlayerId ?? '' });
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={!hasPlayers}>
-          <Plus /> Registrar partido
-        </Button>
+        {trigger ?? (
+          <Button disabled={!hasPlayers}>
+            <Plus /> Registrar partido
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -76,20 +84,22 @@ export function AddMatchDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <div>
-            <Label htmlFor="m-player">Jugador</Label>
-            <Select id="m-player" defaultValue="" {...register('player_id')}>
-              <option value="" disabled>
-                Elige…
-              </option>
-              {(players ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+          {!defaultPlayerId && (
+            <div>
+              <Label htmlFor="m-player">Jugador</Label>
+              <Select id="m-player" defaultValue="" {...register('player_id')}>
+                <option value="" disabled>
+                  Elige…
                 </option>
-              ))}
-            </Select>
-            {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
-          </div>
+                {(players ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </Select>
+              {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>

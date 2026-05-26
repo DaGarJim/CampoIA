@@ -13,11 +13,17 @@ const DashboardPage = lazy(() =>
 const PlayersPage = lazy(() =>
   import('@/features/coach/pages/PlayersPage').then((m) => ({ default: m.PlayersPage })),
 );
+const PlayerPassportPage = lazy(() =>
+  import('@/features/coach/pages/PlayerPassportPage').then((m) => ({ default: m.PlayerPassportPage })),
+);
 const MatchesPage = lazy(() =>
   import('@/features/coach/pages/MatchesPage').then((m) => ({ default: m.MatchesPage })),
 );
 const TrainingPage = lazy(() =>
   import('@/features/coach/pages/TrainingPage').then((m) => ({ default: m.TrainingPage })),
+);
+const HabitsPage = lazy(() =>
+  import('@/features/coach/pages/HabitsPage').then((m) => ({ default: m.HabitsPage })),
 );
 const TasksPage = lazy(() =>
   import('@/features/coach/pages/TasksPage').then((m) => ({ default: m.TasksPage })),
@@ -27,6 +33,12 @@ const MetricsPage = lazy(() =>
 );
 const MessagesPage = lazy(() =>
   import('@/features/coach/pages/MessagesPage').then((m) => ({ default: m.MessagesPage })),
+);
+const VideoPage = lazy(() =>
+  import('@/features/coach/pages/VideoPage').then((m) => ({ default: m.VideoPage })),
+);
+const VideoAnalysisPage = lazy(() =>
+  import('@/features/coach/pages/VideoAnalysisPage').then((m) => ({ default: m.VideoAnalysisPage })),
 );
 const AICoachPage = lazy(() =>
   import('@/features/coach/pages/AICoachPage').then((m) => ({ default: m.AICoachPage })),
@@ -53,6 +65,9 @@ const PlayerMatchesPage = lazy(() =>
 const PlayerProfilePage = lazy(() =>
   import('@/features/player/pages/PlayerProfilePage').then((m) => ({ default: m.PlayerProfilePage })),
 );
+const PlayerChatPage = lazy(() =>
+  import('@/features/player/pages/PlayerChatPage').then((m) => ({ default: m.PlayerChatPage })),
+);
 
 function FullScreenLoader() {
   return (
@@ -78,6 +93,7 @@ export function AppRoutes() {
             <Route path="/player/checkin" element={<PlayerCheckinPage />} />
             <Route path="/player/tasks" element={<PlayerTasksPage />} />
             <Route path="/player/matches" element={<PlayerMatchesPage />} />
+            <Route path="/player/chat" element={<PlayerChatPage />} />
             <Route path="/player/profile" element={<PlayerProfilePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/player" replace />} />
@@ -92,11 +108,15 @@ export function AppRoutes() {
         <Route element={<CoachShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="players" element={<PlayersPage />} />
+          <Route path="players/:id" element={<PlayerPassportPage />} />
           <Route path="matches" element={<MatchesPage />} />
           <Route path="training" element={<TrainingPage />} />
+          <Route path="habits" element={<HabitsPage />} />
           <Route path="metrics" element={<MetricsPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="messages" element={<MessagesPage />} />
+          <Route path="video" element={<VideoPage />} />
+          <Route path="video-analysis" element={<VideoAnalysisPage />} />
           <Route path="ai" element={<AICoachPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />

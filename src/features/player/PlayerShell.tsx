@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { ClipboardCheck, Home, ListChecks, Trophy, User, type LucideIcon } from 'lucide-react';
+import { ClipboardCheck, Home, ListChecks, MessageCircle, Trophy, User, type LucideIcon } from 'lucide-react';
 import { applyTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { tapHaptic } from '@/lib/haptics';
@@ -18,6 +18,7 @@ const NAV: PlayerNavItem[] = [
   { to: '/player/checkin', label: 'Check-in', icon: ClipboardCheck },
   { to: '/player/tasks', label: 'Misiones', icon: ListChecks },
   { to: '/player/matches', label: 'Partidos', icon: Trophy },
+  { to: '/player/chat', label: 'Chat', icon: MessageCircle },
   { to: '/player/profile', label: 'Perfil', icon: User },
 ];
 

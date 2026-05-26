@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -44,7 +44,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function AddTrainingDialog() {
+export function AddTrainingDialog({
+  defaultPlayerId,
+  trigger,
+}: { defaultPlayerId?: string; trigger?: ReactNode } = {}) {
   const [open, setOpen] = useState(false);
   const { data: players } = usePlayers();
   const create = useCreateTraining();
@@ -53,7 +56,10 @@ export function AddTrainingDialog() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { type: 'Técnica individual' } });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { type: 'Técnica individual', player_id: defaultPlayerId ?? '' },
+  });
 
   async function onSubmit(values: FormValues) {
     await create.mutateAsync({
@@ -66,16 +72,18 @@ export function AddTrainingDialog() {
       notes: values.notes,
     });
     await notifyHaptic();
-    reset({ type: 'Técnica individual' });
+    reset({ type: 'Técnica individual', player_id: defaultPlayerId ?? '' });
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={(players?.length ?? 0) === 0}>
-          <Plus /> Nueva sesión
-        </Button>
+        {trigger ?? (
+          <Button disabled={(players?.length ?? 0) === 0}>
+            <Plus /> Nueva sesión
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -83,20 +91,22 @@ export function AddTrainingDialog() {
           <DialogDescription>Registra una sesión individual.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <div>
-            <Label htmlFor="tr-player">Jugador</Label>
-            <Select id="tr-player" defaultValue="" {...register('player_id')}>
-              <option value="" disabled>
-                Elige…
-              </option>
-              {(players ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+          {!defaultPlayerId && (
+            <div>
+              <Label htmlFor="tr-player">Jugador</Label>
+              <Select id="tr-player" defaultValue="" {...register('player_id')}>
+                <option value="" disabled>
+                  Elige…
                 </option>
-              ))}
-            </Select>
-            {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
-          </div>
+                {(players ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </Select>
+              {errors.player_id && <p className="mt-1 text-xs text-destructive">{errors.player_id.message}</p>}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="tr-type">Tipo</Label>

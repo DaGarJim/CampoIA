@@ -5,8 +5,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { notifyHaptic, tapHaptic } from '@/lib/haptics';
+import { toast } from '@/lib/toast';
 
 const MOODS = ['😞', '😕', '😐', '🙂', '😄'];
 
@@ -39,21 +41,30 @@ export function PlayerCheckinPage() {
   const [mood, setMood] = useState(3);
   const [energy, setEnergy] = useState(3);
   const [sleep, setSleep] = useState('8');
+  const [pain, setPain] = useState(0);
+  const [painZone, setPainZone] = useState('');
   const [notes, setNotes] = useState('');
   const [done, setDone] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!player) return;
-    await create.mutateAsync({
-      date: new Date().toISOString().slice(0, 10),
-      mood,
-      energy,
-      sleep_hours: Number(sleep) || undefined,
-      notes: notes || undefined,
-    });
-    await notifyHaptic();
-    setDone(true);
+    try {
+      await create.mutateAsync({
+        date: new Date().toISOString().slice(0, 10),
+        mood,
+        energy,
+        sleep_hours: Number(sleep) || undefined,
+        pain_level: pain,
+        pain_zone: pain > 0 ? painZone || undefined : undefined,
+        notes: notes || undefined,
+      });
+      await notifyHaptic();
+      toast.success('+20 XP · check-in guardado');
+      setDone(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo guardar el check-in.');
+    }
   }
 
   if (done) {
@@ -61,7 +72,7 @@ export function PlayerCheckinPage() {
       <div className="grid min-h-[60vh] place-items-center text-center">
         <div>
           <CheckCircle2 className="mx-auto mb-3 size-12 text-success" />
-          <h2 className="font-display text-xl font-extrabold">¡Check-in guardado!</h2>
+          <h2 className="font-display text-xl font-extrabold">¡Check-in guardado! +20 XP</h2>
           <p className="mt-1 text-sm text-muted-foreground">Tu entrenador lo verá en su panel.</p>
           <Button className="mt-5" onClick={() => setDone(false)}>
             Hacer otro
@@ -91,6 +102,23 @@ export function PlayerCheckinPage() {
           <div>
             <Label htmlFor="sleep">Horas de sueño</Label>
             <Input id="sleep" type="number" min={0} max={14} step="0.5" value={sleep} onChange={(e) => setSleep(e.target.value)} />
+          </div>
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <Label htmlFor="pain">Dolor</Label>
+              <span className={cn('font-display text-sm font-bold', pain >= 7 ? 'text-destructive' : pain >= 4 ? 'text-warning' : 'text-success')}>
+                {pain}/10
+              </span>
+            </div>
+            <Slider id="pain" value={pain} onValueChange={setPain} min={0} max={10} />
+            {pain > 0 && (
+              <Input
+                className="mt-2"
+                value={painZone}
+                onChange={(e) => setPainZone(e.target.value)}
+                placeholder="¿Dónde? (ej: rodilla izquierda)"
+              />
+            )}
           </div>
           <div>
             <Label htmlFor="notes">Notas (opcional)</Label>
