@@ -14,6 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:live": "E2E_LIVE=1 playwright test journey",
+    "test:smoke:db": "node scripts/db-smoke.mjs",
     "audit:prod": "npm audit --omit=dev --audit-level=moderate",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "quality:web": "npm run typecheck && npm run lint:ci && npm test && npm run build && npm run check:bundle && npm run audit:prod && npm run test:e2e",
