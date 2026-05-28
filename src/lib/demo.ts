@@ -20,8 +20,30 @@ import type {
  * Nunca debe usarse para bypassar auth en producción: ver demo.test.ts.
  */
 export function demoRole(): Role | null {
+  // Seguridad en producción: el modo demo SOLO es posible en builds marcadas
+  // explícitamente con VITE_DEMO en build-time. Sin ese flag → siempre null.
   const v = import.meta.env.VITE_DEMO;
-  return v === 'coach' || v === 'player' ? v : null;
+  const enabled = v === '1' || v === 'coach' || v === 'player';
+  if (!enabled) return null;
+
+  // La activación requiere una señal de runtime (?demo= en la URL o localStorage),
+  // de modo que una build demo siga mostrando el login real por defecto y los
+  // tests E2E puedan alternar coach/player sin reconstruir.
+  let signal: string | null = null;
+  try {
+    signal = new URLSearchParams(window.location.search).get('demo') ?? window.localStorage.getItem('campo_demo');
+  } catch {
+    signal = null;
+  }
+  if (signal === 'coach' || signal === 'player') {
+    try {
+      window.localStorage.setItem('campo_demo', signal);
+    } catch {
+      /* contexto sin localStorage */
+    }
+    return signal;
+  }
+  return null;
 }
 
 export function isDemo(): boolean {
