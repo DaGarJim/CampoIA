@@ -1,0 +1,1 @@
+import{j as n}from"./framer-motion-CbDFiL7_.js";import{n as o}from"./index-CzgHVyT3.js";function t({className:e}){return n.jsx("div",{className:o("animate-pulse rounded-md bg-secondary",e)})}export{t as S};

@@ -1,0 +1,1 @@
+function e(a){if(!a)return{label:"—",variant:"muted"};const n=a.match(/(\d+)\s*[-:]\s*(\d+)/);if(!n)return{label:a,variant:"muted"};const r=Number(n[1]),t=Number(n[2]);return r>t?{label:a,variant:"success"}:r===t?{label:a,variant:"warning"}:{label:a,variant:"danger"}}const i=["Titular","Suplente","No jugó","No convocado"];export{i as M,e as r};

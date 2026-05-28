@@ -1,0 +1,1 @@
+function t(n){return Math.max(1,Math.floor(((n==null?void 0:n.score)??0)/12)+1)}function e(n){return Math.min(100,Math.max(0,(n==null?void 0:n.adherence)??0))}function o(n){return n?Math.min(100,Math.round(n/8*100)):0}export{t as l,o as s,e as w};
